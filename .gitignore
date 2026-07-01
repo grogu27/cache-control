@@ -1,6 +1,9 @@
 bin/
 obj/
-docs/html/
+docs/html/*
+docs/latex/*
+!index.html
+!refman.pdf
 .vscode/
 .idea/
 a.out
