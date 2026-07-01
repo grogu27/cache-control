@@ -1,0 +1,9 @@
+bin/
+obj/
+docs/html/
+.vscode/
+.idea/
+a.out
+*.tmp
+*.log
+*.o
