@@ -1,4 +1,5 @@
 #include "../../include/cache_control/options.h"
+#include "../../include/cache_control/daemonize.h"
 
 int main(int argc, char **argv)
 {
@@ -19,6 +20,17 @@ int main(int argc, char **argv)
 
 	//логирование, парсинг прошел успешно ;)
 	printf("Options parsing is success\n");
+
+	if (options.daemon_flag == 1) {
+		if (daemonize() != 0) {
+			return EXIT_FAILURE;
+		}
+		//логирование, демон запустил с конфигом ;)
+	} else {
+		printf("Program run in foreground\n");
+		printf("Config path: %s\n", options.config_path);
+		//логирование, запуск произошел, но не фоне ;)
+	}
 
 	return 0;
 }
