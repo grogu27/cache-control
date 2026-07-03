@@ -12,18 +12,20 @@
 #define PATH_BUFF_SIZE 255
 
 struct file_stat {
-	size_t size;
+	off_t size;
 	int number_of_pages;
 	int number_of_pages_cache;
 	int percent_cache;
-	time_t last_modified;
+	struct timespec last_access;
 };
 
 struct file {
-	char path_buff[PATH_BUFF_SIZE];
+	char path[PATH_BUFF_SIZE];
 	struct file_stat* stat;
 	int politic;
 	int age;
+	int fd;
+	void* vmem_mapping;
 };
 
 struct node {
@@ -36,7 +38,7 @@ struct list {
 	int length;
 };
 
-struct file_stat* init_file_stat(size_t s, int np, int npc, int pc, time_t lm);
+struct file_stat* init_file_stat(off_t s, int np, int npc, int pc, struct timespec* la);
 struct file* init_file(char* pb, int p, int a);
 int add_file_stat(struct file* f, struct file_stat* fs);
 struct node* init_node(struct file* f);

@@ -2,26 +2,32 @@
 
 // инициализация статистики файла
 // возращает: указатель на инициализированную структуру
-struct file_stat* init_file_stat(size_t s, int np, int npc, int pc, time_t lm) {
-	struct file_stat* fs = malloc(sizeof(struct file_stat));
+struct file_stat *init_file_stat(off_t s, int np, int npc, int pc,
+				 struct timespec *la)
+{
+	struct file_stat *fs = malloc(sizeof(struct file_stat));
 	if (fs == NULL) {
 		// ! логирование !
 		return NULL;
 	}
-
+	if (la == NULL) {
+		// ! логирование !
+		return NULL;
+	}
 	fs->size = s;
 	fs->number_of_pages = np;
 	fs->number_of_pages_cache = npc;
 	fs->percent_cache = pc;
-	fs->last_modified = lm;
+	memcpy(&(fs->last_access), la, sizeof(struct timespec));
 
 	return fs;
 }
 
 // инициализация структуры файла
 // возращает: указатель на инициализированную структуру
-struct file* init_file(char* pb, int p, int a) {
-	struct file* f = malloc(sizeof(struct file));
+struct file *init_file(char *pb, int p, int a)
+{
+	struct file *f = malloc(sizeof(struct file));
 	if (f == NULL) {
 		// ! логирование !
 		return NULL;
@@ -32,9 +38,9 @@ struct file* init_file(char* pb, int p, int a) {
 		return NULL;
 	}
 	if (strlen_pb >= PATH_BUFF_SIZE) {
-		strncpy(f->path_buff, pb, (PATH_BUFF_SIZE - 1));
+		strncpy(f->path, pb, (PATH_BUFF_SIZE - 1));
 	} else {
-		strcpy(f->path_buff, pb);
+		strcpy(f->path, pb);
 	}
 	f->stat = NULL;
 	f->politic = p;
@@ -45,7 +51,8 @@ struct file* init_file(char* pb, int p, int a) {
 
 // добавление статистики к файлу
 // возращает: -1 - ошибка, 0 - успех
-int add_file_stat(struct file* f, struct file_stat* fs) {
+int add_file_stat(struct file *f, struct file_stat *fs)
+{
 	if (fs == NULL) {
 		// ! логирование !
 		return -1;
@@ -57,12 +64,13 @@ int add_file_stat(struct file* f, struct file_stat* fs) {
 
 // инициализация вершины
 // возращает: -1 - ошибка, 0 - успех
-struct node* init_node(struct file* f) {
+struct node *init_node(struct file *f)
+{
 	if (f == NULL) {
 		// ! логирование !
 		return NULL;
 	}
-	struct node* n = malloc(sizeof(struct node));
+	struct node *n = malloc(sizeof(struct node));
 	if (n == NULL) {
 		// ! логирование !
 		return NULL;
@@ -73,8 +81,9 @@ struct node* init_node(struct file* f) {
 }
 
 // инициализация списка
-struct list* init_list() {
-	struct list* l = malloc(sizeof(struct list));
+struct list *init_list()
+{
+	struct list *l = malloc(sizeof(struct list));
 	if (l == NULL) {
 		// ! логирование !
 		return NULL;
@@ -87,12 +96,13 @@ struct list* init_list() {
 
 // добавление файла в список
 // возращает: -1 - ошибка, 0 - успех
-int add_file(struct list* l, struct file* f) {
+int add_file(struct list *l, struct file *f)
+{
 	if (l == NULL) {
 		// ! логирование !
 		return -1;
 	}
-	struct node* new_node = init_node(f);
+	struct node *new_node = init_node(f);
 	if (new_node == NULL) {
 		// ! логирование !
 		return -1;
@@ -109,7 +119,8 @@ int add_file(struct list* l, struct file* f) {
 // возвращает:
 // 	NULL - в случае ошибки или отсуствия файла
 // 	указатель на файл - в случае успеха
-struct file* find_file_by_path(struct list* l, char* path) {
+struct file *find_file_by_path(struct list *l, char *path)
+{
 	if (l == NULL) {
 		// ! логирование !
 		return NULL;
@@ -119,9 +130,9 @@ struct file* find_file_by_path(struct list* l, char* path) {
 		return NULL;
 	}
 
-	struct node* search_node = l->start;
+	struct node *search_node = l->start;
 	while (search_node != NULL) {
-		if (strcmp(search_node->nd_file->path_buff, path) == 0) {
+		if (strcmp(search_node->nd_file->path, path) == 0) {
 			return search_node->nd_file;
 		}
 		search_node = search_node->nd_next;
@@ -132,7 +143,8 @@ struct file* find_file_by_path(struct list* l, char* path) {
 
 // удаляет вершину по пути файла в списке
 // возвращает: -1 - ошибка, 0 - успех
-int delete_file_by_path(struct list* l, char* path) {
+int delete_file_by_path(struct list *l, char *path)
+{
 	if (l == NULL) {
 		// ! логирование !
 		return -1;
@@ -142,9 +154,9 @@ int delete_file_by_path(struct list* l, char* path) {
 		return -1;
 	}
 
-	struct node* delete_node;
+	struct node *delete_node;
 	// если искомая врешина оказалась первой
-	if (strcmp(l->start->nd_file->path_buff, path) == 0) {
+	if (strcmp(l->start->nd_file->path, path) == 0) {
 		delete_node = l->start;
 		l->start = l->start->nd_next;
 		free(delete_node->nd_file->stat);
@@ -152,10 +164,9 @@ int delete_file_by_path(struct list* l, char* path) {
 		free(delete_node);
 		l->length--;
 	} else {
-		struct node* cur_node = l->start;
+		struct node *cur_node = l->start;
 		while ((cur_node->nd_next != NULL) &&
-		       (strcmp(cur_node->nd_next->nd_file->path_buff, path) !=
-			0)) {
+		       (strcmp(cur_node->nd_next->nd_file->path, path) != 0)) {
 			cur_node = cur_node->nd_next;
 		}
 		delete_node = cur_node->nd_next;
@@ -171,15 +182,16 @@ int delete_file_by_path(struct list* l, char* path) {
 
 // удаление списка
 // возвращает: -1 - ошибка, 0 - успех
-int free_list(struct list* l) {
+int free_list(struct list *l)
+{
 	if (l == NULL) {
 		// ! логирование !
 		return -1;
 	}
 
-	struct node* cur_node = l->start;
+	struct node *cur_node = l->start;
 	while (cur_node != NULL) {
-		struct node* delete_node = cur_node;
+		struct node *delete_node = cur_node;
 		cur_node = cur_node->nd_next;
 		free(delete_node->nd_file->stat);
 		free(delete_node->nd_file);
