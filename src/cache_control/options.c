@@ -39,17 +39,17 @@ int validate_path_config(const char *path)
 
 //парсинг аргументов командной строки
 //возвращает: 0 если успех, -1 если ошибка, -2 если показано описание
-int parse_options(int argc, char **argv, struct program_options *po)
+int parse_options(int argc, char **argv, struct cache_control *cc)
 {
-	po->daemon_flag = 0;
-	po->config_path[0] = '\0';
+	cc->daemon_flag = 0;
+	cc->config_path[0] = '\0';
 
 	int opt;
 	while ((opt = getopt(argc, argv, "dc:h")) != -1) {
 		switch (opt) {
 		case 'd':
 			//логирование то, что запустился с -d и у нас используется дефолтный конфиг ;)
-			po->daemon_flag = 1;
+			cc->daemon_flag = 1;
 			break;
 
 		case 'c':
@@ -64,7 +64,7 @@ int parse_options(int argc, char **argv, struct program_options *po)
 				printf("Config path is empty\n");
 				return -1;
 			}
-			strcpy(po->config_path, optarg);
+			strcpy(cc->config_path, optarg);
 			break;
 
 		case 'h':
@@ -83,12 +83,12 @@ int parse_options(int argc, char **argv, struct program_options *po)
 		}
 	}
 
-	if (po->config_path[0] == '\0') {
-		strcpy(po->config_path,
+	if (cc->config_path[0] == '\0') {
+		strcpy(cc->config_path,
 		       "config/cachecontrol.conf"); // /etc/cachecontrol.conf
 	}
 
-	if (validate_path_config(po->config_path) != 0) {
+	if (validate_path_config(cc->config_path) != 0) {
 		return -1;
 	}
 
