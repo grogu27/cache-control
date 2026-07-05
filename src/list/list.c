@@ -1,7 +1,8 @@
 #include "../../include/list/list.h"
 
 // инициализация статистики файла
-// возращает: указатель на инициализированную структуру
+// возращает:	указатель на инициализированную структуру - успех
+//		NULL - ошибка
 struct file_stat *init_file_stat(off_t s, int np, int npc, int pc,
 				 struct timespec *la)
 {
@@ -23,8 +24,31 @@ struct file_stat *init_file_stat(off_t s, int np, int npc, int pc,
 	return fs;
 }
 
+// инициализация пустой статистики файла
+// необходима тот случай, если мы хотим безопасно выделить память под структуру, но пока не заполнять поля
+// возвращает:	указатель на инициализированную структуру - успех
+// 		NULL - ошибка
+struct file_stat *init_empty_stat()
+{
+	struct file_stat *fs = malloc(sizeof(struct file_stat));
+	if (fs == NULL) {
+		// ! логирование !
+		return NULL;
+	}
+
+	fs->size = -1;
+	fs->number_of_pages = -1;
+	fs->number_of_pages_cache = -1;
+	fs->percent_cache = -1;
+	struct timespec la;
+	la.tv_sec = -1;
+	la.tv_nsec = -1;
+	memcpy(&(fs->last_access), &la, sizeof(struct timespec));
+}
+
 // инициализация структуры файла
-// возращает: указатель на инициализированную структуру
+// возращает: 	указатель на инициализированную структуру - успех
+// 		NULL - ошибка
 struct file *init_file(char *pb, int p, int a)
 {
 	struct file *f = malloc(sizeof(struct file));
@@ -45,7 +69,8 @@ struct file *init_file(char *pb, int p, int a)
 	f->stat = NULL;
 	f->politic = p;
 	f->age = a;
-
+	f->fd = -1;
+	f->vmem_mapping = NULL;
 	return f;
 }
 
@@ -90,7 +115,7 @@ struct list *init_list()
 	}
 	l->start = NULL;
 	l->length = 0;
-
+	l->evict_files = 0;
 	return l;
 }
 
@@ -111,6 +136,10 @@ int add_file(struct list *l, struct file *f)
 	new_node->nd_next = l->start;
 	l->start = new_node;
 	l->length++;
+
+	if (f->politic == EVICT) {
+		l->evict_files++;
+	}
 
 	return 0;
 }
