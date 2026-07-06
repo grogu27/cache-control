@@ -2,6 +2,7 @@
 #include "../../include/cache_control/daemonize.h"
 #include "../../include/cache_control/signal_handler.h"
 #include "../../include/cache_control/context.h"
+#include "../../include/cache_control/parse_config.h"
 
 int main(int argc, char **argv)
 {
@@ -40,6 +41,19 @@ int main(int argc, char **argv)
 
 	init_signal_handler();
 	//логирование, обработчики сигналов инициализированы
+	cc.file_list = init_list();
+	if (cc.file_list == NULL) {
+		// ошибка выделения памяти
+		return EXIT_FAILURE;
+	}
+	int res_parse_config = parse_config(cc.config_path, cc.file_list, &cc.interval);
+	if (res_parse_config == 1) {
+		//логирование, не открывается конфиг файл
+		return EXIT_FAILURE;
+	} else if (res_parse_config == 2) {
+		//логирование, синтаксическая ошибка в конфиг файле
+		return EXIT_FAILURE;
+	}
 
 	//логирование вхождение в бесконечный цикл
 	while (!cc.shutdown_flag) {
@@ -52,6 +66,6 @@ int main(int argc, char **argv)
 	} else {
 		//логирование, удаление структуры завершилось успешно
 	}
-
+	free_list(cc.file_list);
 	return EXIT_SUCCESS;
 }

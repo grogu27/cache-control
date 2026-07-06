@@ -12,6 +12,7 @@ struct cache_control {
 	char config_path[PATH_SIZE];
 	struct list *file_list;
 	int shutdown_flag;
+	int interval;
 };
 
 int init_context(struct cache_control *cc);
