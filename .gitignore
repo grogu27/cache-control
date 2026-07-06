@@ -10,3 +10,4 @@ a.out
 *.tmp
 *.log
 *.o
+docs/man/
