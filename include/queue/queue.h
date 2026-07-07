@@ -15,7 +15,7 @@
 #define CHANGE_SIZE_MSG 8190
 
 mqd_t create_queue(char *file_desc, int flags, int size_msg);
-char *recive_msg(mqd_t queue, char *snd_msg, int size_msg);
+char* recive_msg(mqd_t queue, char *snd_msg, int size_msg);
 int send_msg(mqd_t queue, char *snd_msg, int size_msg);
 
 #endif
