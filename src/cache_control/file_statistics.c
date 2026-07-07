@@ -79,8 +79,8 @@ int get_number_of_pages_cache(void *vmem_mapping, off_t size,
 	return number_of_pages_cache;
 }
 
-// возвращает: 	процентное соотношение занятых страниц к общему количеству - успех
-// 		-1 - ошибка
+// возвращает: 	процентное соотношение занятых страниц к общему количеству -
+// успех 		-1 - ошибка
 int get_percent_cache(int number_of_pages, int number_of_pages_cache)
 {
 	if (number_of_pages <= 0) {

@@ -25,9 +25,9 @@ struct file_stat *init_file_stat(off_t s, int np, int npc, int pc,
 }
 
 // инициализация пустой статистики файла
-// необходима тот случай, если мы хотим безопасно выделить память под структуру, но пока не заполнять поля
-// возвращает:	указатель на инициализированную структуру - успех
-// 		NULL - ошибка
+// необходима тот случай, если мы хотим безопасно выделить память под структуру,
+// но пока не заполнять поля возвращает:	указатель на инициализированную
+// структуру - успех 		NULL - ошибка
 struct file_stat *init_empty_stat()
 {
 	struct file_stat *fs = malloc(sizeof(struct file_stat));
@@ -44,6 +44,7 @@ struct file_stat *init_empty_stat()
 	la.tv_sec = -1;
 	la.tv_nsec = -1;
 	memcpy(&(fs->last_access), &la, sizeof(struct timespec));
+	return fs;
 }
 
 // инициализация структуры файла
@@ -69,6 +70,7 @@ struct file *init_file(char *pb, int p, int a)
 	f->stat = NULL;
 	f->politic = p;
 	f->age = a;
+	f->wd = -1;
 	f->fd = -1;
 	f->vmem_mapping = NULL;
 	return f;
@@ -170,6 +172,39 @@ struct file *find_file_by_path(struct list *l, char *path)
 	return NULL;
 }
 
+// поиск файла по его watch descriptor
+// возвращает:
+// 	NULL - в случае ошибки или отсуствия файла
+// 	указатель на файл - в случае успеха
+struct file *find_file_by_wd(struct list *l, int wd)
+{
+	if (l == NULL) {
+		// ! логирование !
+		return NULL;
+	}
+	if (l->start == NULL) {
+		// ! логирование !
+		return NULL;
+	}
+	if (wd < 0) {
+		// ! лоигирование !
+		return NULL;
+	}
+
+	struct node *search_node = l->start;
+	while (search_node != NULL) {
+		if (search_node->nd_file == NULL) {
+			return NULL;
+		}
+		if (search_node->nd_file->wd == wd) {
+			return search_node->nd_file;
+		}
+		search_node = search_node->nd_next;
+	}
+
+	return NULL;
+}
+
 // удаляет вершину по пути файла в списке
 // возвращает: -1 - ошибка, 0 - успех
 int delete_file_by_path(struct list *l, char *path)
@@ -209,6 +244,50 @@ int delete_file_by_path(struct list *l, char *path)
 	return 0;
 }
 
+// удаляет вершину по watch descriptor
+// возвращает: -1 - ошибка, 0 - успех
+int delete_file_by_wd(struct list *l, int wd)
+{
+	if (l == NULL) {
+		// ! логирование !
+		return -1;
+	}
+	if (l->start == NULL) {
+		// ! логирование !
+		return -1;
+	}
+	if (wd < 0) {
+		return -1;
+	}
+
+	struct node *delete_node;
+	// если искомая врешина оказалась первой
+	if (l->start->nd_file->wd == wd) {
+		delete_node = l->start;
+		l->start = l->start->nd_next;
+		free(delete_node->nd_file->stat);
+		free(delete_node->nd_file);
+		free(delete_node);
+		l->length--;
+	} else {
+		struct node *cur_node = l->start;
+		while ((cur_node->nd_next != NULL) &&
+		       (cur_node->nd_next->nd_file->wd != wd)) {
+			cur_node = cur_node->nd_next;
+		}
+		if (cur_node->nd_next == NULL) {
+			return -1;
+		}
+		delete_node = cur_node->nd_next;
+		cur_node->nd_next = cur_node->nd_next->nd_next;
+		free(delete_node->nd_file->stat);
+		free(delete_node->nd_file);
+		free(delete_node);
+		l->length--;
+	}
+
+	return 0;
+}
 // удаление списка
 // возвращает: -1 - ошибка, 0 - успех
 int free_list(struct list *l)

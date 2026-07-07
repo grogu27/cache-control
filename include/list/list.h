@@ -26,6 +26,7 @@ struct file {
 	struct file_stat *stat;
 	int politic;
 	int age;
+	int wd;
 	int fd;
 	void *vmem_mapping;
 };
@@ -50,7 +51,9 @@ struct node *init_node(struct file *f);
 struct list *init_list();
 int add_file(struct list *l, struct file *f);
 struct file *find_file_by_path(struct list *l, char *path);
+struct file *find_file_by_wd(struct list *l, int wd);
 int delete_file_by_path(struct list *l, char *path);
+int delete_file_by_wd(struct list *l, int wd);
 int free_list(struct list *l);
 
 #endif
