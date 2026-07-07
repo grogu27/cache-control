@@ -301,6 +301,16 @@ int free_list(struct list *l)
 	while (cur_node != NULL) {
 		struct node *delete_node = cur_node;
 		cur_node = cur_node->nd_next;
+
+		if (delete_node->nd_file->fd > 0) {
+			close(delete_node->nd_file->fd);
+		}
+
+		if (delete_node->nd_file->vmem_mapping != NULL) {
+			munmap(delete_node->nd_file->vmem_mapping,
+			       delete_node->nd_file->stat->size);
+		}
+
 		free(delete_node->nd_file->stat);
 		free(delete_node->nd_file);
 		free(delete_node);

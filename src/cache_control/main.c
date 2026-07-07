@@ -3,6 +3,7 @@
 #include "../../include/cache_control/signal_handler.h"
 #include "../../include/cache_control/context.h"
 #include "../../include/cache_control/parse_config.h"
+#include "../../include/cache_control/threads.h"
 
 int main(int argc, char **argv)
 {
@@ -46,7 +47,8 @@ int main(int argc, char **argv)
 		// ошибка выделения памяти
 		return EXIT_FAILURE;
 	}
-	int res_parse_config = parse_config(cc.config_path, cc.file_list, &cc.interval);
+	int res_parse_config =
+		parse_config(cc.config_path, cc.file_list, &cc.interval);
 	if (res_parse_config == 1) {
 		//логирование, не открывается конфиг файл
 		return EXIT_FAILURE;
@@ -55,12 +57,24 @@ int main(int argc, char **argv)
 		return EXIT_FAILURE;
 	}
 
+	//логирование, запуск потоков начался
+	if (start_threads(&cc) != 0) {
+		//логирование, запуск поток завершился с ошибкой
+		remove_context(&cc);
+		return EXIT_FAILURE;
+	}
+	//логирование, запуск прошел успешно
+
 	//логирование вхождение в бесконечный цикл
 	while (!cc.shutdown_flag) {
 	}
 
 	//логирвоание, вышли из бесконечного цикла
-
+	if (stop_threads() != 0) {
+		//логирование, остановка потоков завершилось неудачно
+	} else {
+		//логирование, остановка потоков завершилось удачно
+	}
 	if (remove_context(&cc) != 0) {
 		//логирование, удаление структуры завершилось неудачно
 	} else {

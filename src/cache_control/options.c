@@ -41,9 +41,6 @@ int validate_path_config(const char *path)
 //возвращает: 0 если успех, -1 если ошибка, -2 если показано описание
 int parse_options(int argc, char **argv, struct cache_control *cc)
 {
-	cc->daemon_flag = 0;
-	cc->config_path[0] = '\0';
-
 	int opt;
 	while ((opt = getopt(argc, argv, "dc:h")) != -1) {
 		switch (opt) {

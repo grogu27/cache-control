@@ -148,7 +148,6 @@ int parse_config(const char *config_path, struct list *l, int *interval)
 	FILE *fd = fopen(config_path, "r");
 	if (!fd)
 		return 1;
-	*interval = DEFAULT_INTERVAL;
 	char buff[SIZE_BUFF];
 	char *ptr_buff = NULL;
 	int policy;

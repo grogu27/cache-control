@@ -11,21 +11,17 @@ void open_log()
 Уровни логировани которые используются LOG_INFO LOG_WARNING LOG_ERR
 Сообщения которые записываются в syslog указываются при вызове функции или берутся при помощи strerror(errno)
 */
-void logging(int log_level,  char *msg)
+void logging(int log_level, char *msg)
 {
-	if(msg==NULL)
-	{
+	if (msg == NULL) {
 		syslog(LOG_INFO, "General: Empty call logging");
 	}
-	if(log_level==LOG_INFO || log_level==LOG_WARNING)
-	{
-		if(log_level==LOG_INFO)
+	if (log_level == LOG_INFO || log_level == LOG_WARNING) {
+		if (log_level == LOG_INFO)
 			syslog(log_level, "[INFO]: %s", msg);
-		if(log_level==LOG_WARNING)
+		if (log_level == LOG_WARNING)
 			syslog(log_level, "[WARNING]: %s", msg);
-	}
-	else if(log_level==LOG_ERR)
-	{
+	} else if (log_level == LOG_ERR) {
 		syslog(log_level, "[ERROR] %s: %s", msg, strerror(errno));
 	}
 }

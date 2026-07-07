@@ -21,4 +21,3 @@ int get_last_access(char *path, struct timespec *last_access);
 int get_page_stat(struct file *myfile);
 
 #endif
-

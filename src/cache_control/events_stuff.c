@@ -41,4 +41,3 @@ int add_fd_to_epoll(int epoll_fd, int fd)
 	}
 	return 0;
 }
-

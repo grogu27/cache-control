@@ -135,4 +135,3 @@ int read_inotify(int inotify_fd, struct list *file_list)
 	free(event);
 	return 0;
 }
-

@@ -32,11 +32,11 @@ int do_file_statistics(struct file *myfile)
 	}
 	if (myfile->vmem_mapping == NULL) {
 		if (myfile->politic != EVICT) {
-			// ! логирование! файлы evict могут не иметь vmem после выгрузки, так что всё ок
-			return 1;
+			//! логирование ! файлы evict могут не иметь vmem после выгрузки, так что всё ок
+			return -1;
 		}
 		// ! логирование !
-		return -1;
+		return 0;
 	}
 	int ps = get_page_stat(myfile);
 	if (ps == -1) {
@@ -207,11 +207,11 @@ void *start_file_monitoring(void *args)
 	// выделили виртуальный адрес для всех файлов
 	if (map_all_files(cc->file_list) == -1) {
 		// ! логирование, каких-то файлов не существует !
-		return NULL;
+		return NULL; // если файл не имеет прав, чтобы его читать , то запуск потом зависнет и не завершится
 	}
 
 	// задаём время для таймера и запускаем его
-	if (set_timer(fm.main_timer_fd, INTERVAL) == -1) {
+	if (set_timer(fm.main_timer_fd, cc->interval) == -1) {
 		return NULL;
 	}
 	if (add_fd_to_epoll(fm.epoll_fd, fm.main_timer_fd) == -1) {
@@ -228,7 +228,7 @@ void *start_file_monitoring(void *args)
 	}
 
 	struct epoll_event events[MAX_NUM_OF_EVENTS];
-	while (1) {
+	while (!cc->shutdown_flag) {
 		// проверка сработал ли таймер, если нет - continue
 		int num_ready = epoll_wait(fm.epoll_fd, events,
 					   MAX_NUM_OF_EVENTS, TIMEOUT);
@@ -247,4 +247,5 @@ void *start_file_monitoring(void *args)
 			}
 		}
 	}
+	return NULL;
 }

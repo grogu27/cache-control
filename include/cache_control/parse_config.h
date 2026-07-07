@@ -12,6 +12,6 @@
 #define DEFAULT_INTERVAL 60
 #define SIZE_BUFF 4096
 
-int parse_config(const char *config_path, struct list *l, int* interval);
+int parse_config(const char *config_path, struct list *l, int *interval);
 
 #endif

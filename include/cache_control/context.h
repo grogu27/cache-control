@@ -4,6 +4,7 @@
 #define CONTEXT_H
 
 #include "../list/list.h"
+#include "parse_config.h"
 
 #define PATH_SIZE 255
 

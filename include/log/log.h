@@ -6,6 +6,6 @@
 #include <errno.h>
 
 void open_log();
-void logging(int log_level,  char *msg);
+void logging(int log_level, char *msg);
 void close_log();
 #endif
