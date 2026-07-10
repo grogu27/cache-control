@@ -7,6 +7,7 @@
 #include <sys/epoll.h>
 #include <unistd.h>
 #include <stdio.h>
+#include "../log/log.h"
 
 #define TIMEOUT 1000
 #define MAX_NUM_OF_EVENTS 2

@@ -6,10 +6,12 @@ int daemonize()
 {
 	if (daemon(0, 0) != 0) {
 		//логирование, системный вызов закончился неудачно ;(
+		logging(LOG_ERR, "<daemonize> daemon system call failed");
 		perror("daemon failed");
 		return -1;
 	}
 
 	//логирование, демон запустился ;)
+	logging(LOG_INFO, "daemon system call successfully started");
 	return 0;
 }

@@ -9,10 +9,13 @@ struct file_stat *init_file_stat(off_t s, int np, int npc, int pc,
 	struct file_stat *fs = malloc(sizeof(struct file_stat));
 	if (fs == NULL) {
 		// ! логирование !
+		logging(LOG_ERR, "<init_file_stat> malloc failed");
 		return NULL;
 	}
 	if (la == NULL) {
 		// ! логирование !
+		logging(LOG_ERR,
+			"<init_file_stat> struct timespec* la is NULL");
 		return NULL;
 	}
 	fs->size = s;
@@ -33,6 +36,7 @@ struct file_stat *init_empty_stat()
 	struct file_stat *fs = malloc(sizeof(struct file_stat));
 	if (fs == NULL) {
 		// ! логирование !
+		logging(LOG_ERR, "<init_empty_stat> malloc failed");
 		return NULL;
 	}
 
@@ -55,11 +59,13 @@ struct file *init_file(char *pb, int p, int a)
 	struct file *f = malloc(sizeof(struct file));
 	if (f == NULL) {
 		// ! логирование !
+		logging(LOG_ERR, "<init_file> malloc failed");
 		return NULL;
 	}
 	int strlen_pb = strlen(pb);
 	if (strlen_pb == 0) {
 		// ! логирование !
+		logging(LOG_ERR, "<init_file> path is empty");
 		return NULL;
 	}
 	if (strlen_pb >= PATH_BUFF_SIZE) {
@@ -82,6 +88,8 @@ int add_file_stat(struct file *f, struct file_stat *fs)
 {
 	if (fs == NULL) {
 		// ! логирование !
+		logging(LOG_ERR,
+			"<add_file_stat> struct file_stat* fs is NULL");
 		return -1;
 	}
 
@@ -95,11 +103,13 @@ struct node *init_node(struct file *f)
 {
 	if (f == NULL) {
 		// ! логирование !
+		logging(LOG_ERR, "<init_node> struct file* f is NULL");
 		return NULL;
 	}
 	struct node *n = malloc(sizeof(struct node));
 	if (n == NULL) {
 		// ! логирование !
+		logging(LOG_ERR, "<init_node> malloc failed");
 		return NULL;
 	}
 	n->nd_file = f;
@@ -113,11 +123,14 @@ struct list *init_list()
 	struct list *l = malloc(sizeof(struct list));
 	if (l == NULL) {
 		// ! логирование !
+		logging(LOG_ERR, "<init_list> malloc failed");
 		return NULL;
 	}
 	l->start = NULL;
 	l->length = 0;
 	l->evict_files = 0;
+
+	logging(LOG_INFO, "list initilized");
 	return l;
 }
 
@@ -127,11 +140,13 @@ int add_file(struct list *l, struct file *f)
 {
 	if (l == NULL) {
 		// ! логирование !
+		logging(LOG_ERR, "<add_file> struct list* l is NULL");
 		return -1;
 	}
 	struct node *new_node = init_node(f);
 	if (new_node == NULL) {
 		// ! логирование !
+		logging(LOG_ERR, "<add_file> init_node failed");
 		return -1;
 	}
 
@@ -154,10 +169,12 @@ struct file *find_file_by_path(struct list *l, char *path)
 {
 	if (l == NULL) {
 		// ! логирование !
+		logging(LOG_ERR, "<find_file_by_path> struct list* l is NULL");
 		return NULL;
 	}
 	if (l->start == NULL) {
 		// ! логирование !
+		logging(LOG_ERR, "<find_file_by_path> l->start is NULL");
 		return NULL;
 	}
 
@@ -180,20 +197,24 @@ struct file *find_file_by_wd(struct list *l, int wd)
 {
 	if (l == NULL) {
 		// ! логирование !
+		logging(LOG_ERR, "<find_file_by_wd> struct list* l is NULL");
 		return NULL;
 	}
 	if (l->start == NULL) {
 		// ! логирование !
+		logging(LOG_ERR, "<find_file_by_wd> l->start is NULL");
 		return NULL;
 	}
 	if (wd < 0) {
 		// ! лоигирование !
+		logging(LOG_ERR, "<find_file_by_wd> wd is negative");
 		return NULL;
 	}
 
 	struct node *search_node = l->start;
 	while (search_node != NULL) {
 		if (search_node->nd_file == NULL) {
+			logging(LOG_ERR, "<find_file_by_wd> found empty file");
 			return NULL;
 		}
 		if (search_node->nd_file->wd == wd) {
@@ -211,10 +232,13 @@ int delete_file_by_path(struct list *l, char *path)
 {
 	if (l == NULL) {
 		// ! логирование !
+		logging(LOG_ERR,
+			"<delete_file_by_path> struct list* l is NULL");
 		return -1;
 	}
 	if (l->start == NULL) {
 		// ! логирование !
+		logging(LOG_ERR, "<delete_file_by_path> l->start is NULL");
 		return -1;
 	}
 
@@ -250,10 +274,13 @@ int delete_file_by_wd(struct list *l, int wd)
 {
 	if (l == NULL) {
 		// ! логирование !
+		logging(LOG_ERR, "<delete_file_by_wd> struct list* l is NULL");
 		return -1;
 	}
 	if (l->start == NULL) {
 		// ! логирование !
+
+		logging(LOG_ERR, "<delete_file_by_wd> l->start is NULL");
 		return -1;
 	}
 	if (wd < 0) {
@@ -294,6 +321,8 @@ int free_list(struct list *l)
 {
 	if (l == NULL) {
 		// ! логирование !
+
+		logging(LOG_ERR, "<free_list> struct list* l is already empty");
 		return -1;
 	}
 
@@ -315,7 +344,8 @@ int free_list(struct list *l)
 		free(delete_node->nd_file);
 		free(delete_node);
 	}
-	free(l);
 
+	free(l);
+	logging(LOG_INFO, "list has been removed");
 	return 0;
 }

@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 #include <unistd.h>
+#include "../log/log.h"
 
 int daemonize();
 

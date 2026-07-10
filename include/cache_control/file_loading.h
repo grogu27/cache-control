@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include "../list/list.h"
+#include "../log/log.h"
 
 #define READ_BUFF 4096
 

@@ -5,6 +5,7 @@
 
 #include "../list/list.h"
 #include "parse_config.h"
+#include "../log/log.h"
 
 #define PATH_SIZE 255
 

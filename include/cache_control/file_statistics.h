@@ -11,6 +11,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include "../list/list.h"
+#include "../log/log.h"
 
 off_t get_file_size(char *path);
 int get_number_of_pages(off_t file_size);

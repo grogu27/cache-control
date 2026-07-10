@@ -9,6 +9,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <sys/mman.h>
+#include "../log/log.h"
 
 #define PATH_BUFF_SIZE 255
 

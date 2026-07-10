@@ -4,6 +4,7 @@
 #include "../../include/cache_control/context.h"
 #include "../../include/cache_control/parse_config.h"
 #include "../../include/cache_control/threads.h"
+#include "../../include/log/log.h"
 
 int main(int argc, char **argv)
 {
