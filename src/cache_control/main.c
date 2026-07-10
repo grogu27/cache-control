@@ -56,7 +56,11 @@ int main(int argc, char **argv)
 	} else if (res_parse_config == 2) {
 		//логирование, синтаксическая ошибка в конфиг файле
 		return EXIT_FAILURE;
+	} else if (res_parse_config == 3){
+		//логирование, семантическая ошибка в конфиг файле
+		return EXIT_FAILURE;
 	}
+
 
 	//логирование, запуск потоков начался
 	if (start_threads(&cc) != 0) {

@@ -100,12 +100,12 @@ static int check_pattern(const char *path)
 	return 0;
 }
 
-static void parse_dir(const char *dir, const char *pattern, struct list *list,
+static int parse_dir(const char *dir, const char *pattern, struct list *list,
 		      int policy, int age)
 {
 	DIR *fd = opendir(dir);
 	if (!fd)
-		return; /* Каталог отсутствует или недоступен — пропускаем правило. Можно написать лог, но это не является ошибкой, и парсер продолжает работу*/
+		return 1; /* Каталог отсутствует или недоступен — пропускаем правило. Можно написать лог, но это не является ошибкой, и парсер продолжает работу*/
 
 	struct dirent *entry;
 	char path[PATH_MAX];
@@ -119,12 +119,18 @@ static void parse_dir(const char *dir, const char *pattern, struct list *list,
 
 		snprintf(path, PATH_MAX, "%s/%s", dir, entry->d_name);
 
+		if (find_file_by_path(list, path) != NULL){ // семантическая ошибка в конфигурационном файле (к одному и тому же файлу применяются разные политики).
+			closedir(fd);
+			return 2;
+		}  
+			
 		struct file *f = init_file(path, policy, age);
 
 		add_file(list, f);
 	}
 
 	closedir(fd);
+	return 0;
 }
 
 /* ---------- main ----------
@@ -142,6 +148,7 @@ static void parse_dir(const char *dir, const char *pattern, struct list *list,
  *   0 — успех;
  *   1 — ошибка открытия конфигурационного файла;
  *   2 — синтаксическая ошибка в конфигурационном файле.
+ * 	 3 - семантическая ошибка в конфигурационном файле (к одному и тому же файлу применяются разные политики).
  */
 int parse_config(const char *config_path, struct list *l, int *interval)
 {
@@ -216,7 +223,9 @@ int parse_config(const char *config_path, struct list *l, int *interval)
 			}
 		}
 
-		parse_dir(dir, pattern, l, policy, age);
+		int res_parse_dir = parse_dir(dir, pattern, l, policy, age);
+		if(res_parse_dir == 2)
+			return 3;
 	}
 
 	fclose(fd);
