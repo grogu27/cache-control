@@ -7,6 +7,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+#include <limits.h>
+#include "../log/log.h"
 #include "context.h"
 
 void print_info();
