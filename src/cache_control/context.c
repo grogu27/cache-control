@@ -12,6 +12,8 @@ int init_context(struct cache_control *cc)
 
 	cc->file_list = NULL;
 	cc->shutdown_flag = 0;
+	cc->reload_flag = 0;
+	cc->stats_flag = 0;
 	cc->daemon_flag = 0;
 	cc->config_path[0] = '\0';
 	cc->interval = DEFAULT_INTERVAL;

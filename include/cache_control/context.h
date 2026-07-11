@@ -15,6 +15,8 @@ struct cache_control {
 	struct list *file_list;
 	int shutdown_flag;
 	int interval;
+	int reload_flag;
+	int stats_flag;
 };
 
 int init_context(struct cache_control *cc);

@@ -33,5 +33,6 @@ int do_file_loading(struct file *myfile);
 int map_all_files(struct list *list_files);
 int processing_all_files(struct list *list_files);
 int check_type_fd(int fd, struct file_monitoring *fm, struct list *file_list);
+int reload_config(struct cache_control *cc, struct file_monitoring *fm);
 
 #endif

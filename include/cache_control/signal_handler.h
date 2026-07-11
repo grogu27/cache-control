@@ -7,6 +7,7 @@
 #include <signal.h>
 #include <stdlib.h>
 #include "context.h"
+#include "../log/log.h"
 
 void sigint_handler(int sig);
 int register_handler(int signum, void (*handler)(int));
