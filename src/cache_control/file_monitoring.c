@@ -50,19 +50,16 @@ int do_file_statistics(struct file *myfile)
 	logging(LOG_INFO, log_output);
 	if (myfile->vmem_mapping == NULL) {
 		if (myfile->politic != EVICT) {
-			//! логирование !
 			logging(LOG_ERR,
 				"<do_file_statistics> myfile->vmem_mapping is NULL and myfile`s politics isn`t EVICT");
 			return -1;
 		}
-		// ! логирование ! файлы evict могут не иметь vmem после выгрузки, так что всё ок
 		logging(LOG_WARNING,
 			"<do_file_statistics> file with EVICT politics has been already unmapped");
 		return 0;
 	}
 	int ps = get_page_stat(myfile);
 	if (ps == -1) {
-		// ! логирование !
 		logging(LOG_ERR, "get_page_stat failed");
 		return -1;
 	}
@@ -82,13 +79,11 @@ int do_file_statistics(struct file *myfile)
 int do_file_loading(struct file *myfile)
 {
 	if (myfile == NULL) {
-		// ! логирование !
 		logging(LOG_ERR,
 			"<do_file_loading> struct file* myfile is NULL");
 		return -1;
 	}
 	if (myfile->stat == NULL) {
-		// ! логирование !
 		logging(LOG_ERR, "<do_file_loading> myfile->stat is NULL");
 
 		return -1;
@@ -99,7 +94,6 @@ int do_file_loading(struct file *myfile)
 		logging(LOG_INFO, "file`s politic is KEEP");
 		if (myfile->stat->percent_cache < MIN_PERCENT_CACHE) {
 			if (load_file(myfile) == -1) {
-				// ! логирование !
 				logging(LOG_ERR,
 					"<do_file_loading> load failed");
 				return -1;
@@ -119,7 +113,6 @@ int do_file_loading(struct file *myfile)
 			   (int)myfile->stat->last_access.tv_sec;
 		if ((diff >= myfile->age) && (myfile->vmem_mapping != NULL)) {
 			if (unmap_file(myfile) == -1) {
-				// ! логирование !
 				logging(LOG_ERR,
 					"<do_file_loading> unmap failed");
 				return -1;
@@ -175,14 +168,12 @@ int map_all_files(struct list *list_files)
 		cur_node->nd_file->stat = init_empty_stat();
 		off_t fs = get_file_size(cur_node->nd_file->path);
 		if (fs == -1) {
-			// ! логирование !
 			logging(LOG_ERR,
 				"<map_all_files> get_file_size failed");
 			return -1;
 		}
 		cur_node->nd_file->stat->size = fs;
 		if (map_file(cur_node->nd_file) == -1) {
-			// ! логирование !
 			logging(LOG_ERR, "<map_all_files> map_file failed");
 			return -1;
 		}
@@ -205,7 +196,6 @@ int processing_all_files(struct list *list_files)
 		logging(LOG_INFO, log_output);
 		logging(LOG_INFO, "try to get file statistics");
 		if (do_file_statistics(cur_node->nd_file) == -1) {
-			// ! логирование !
 			logging(LOG_ERR,
 				"<processing_all_files> do_file_statistics failed");
 			return -1;
@@ -213,7 +203,6 @@ int processing_all_files(struct list *list_files)
 
 		logging(LOG_INFO, "apply file`s politics");
 		if (do_file_loading(cur_node->nd_file) == -1) {
-			// ! логирование !
 			logging(LOG_ERR,
 				"<processing_all_files> do_file_loading failed");
 			return -1;
@@ -256,7 +245,6 @@ int check_type_fd(int fd, struct file_monitoring *fm, struct list *file_list)
 
 		logging(LOG_INFO, "this is timer");
 		if (processing_all_files(file_list) == -1) {
-			// ! логирование !
 			logging(LOG_ERR,
 				"<check_type_fd> proccessing_all_files failed");
 			return -1;
@@ -276,7 +264,6 @@ int check_type_fd(int fd, struct file_monitoring *fm, struct list *file_list)
 		// 	IN_MODIFY - меняем размер файла в stat, заново задаём fd
 		// и vmem_mapping 	IN_MOVE - меняем путь файла
 		if (read_inotify(fm->inotify_fd, file_list) == -1) {
-			// ! логирование !
 			logging(LOG_ERR, "<check_type_fd> read_inotify failed");
 
 			return -1;
@@ -380,7 +367,6 @@ int reload_config(struct cache_control *cc, struct file_monitoring *fm)
 void *start_file_monitoring(void *args)
 {
 	if (args == NULL) {
-		// ! логирование !
 		logging(LOG_ERR, "<start_file_monitoring> args is NULL");
 
 		return NULL;
@@ -390,7 +376,6 @@ void *start_file_monitoring(void *args)
 	// инициализация структуры file_monitoring
 	struct file_monitoring fm;
 	if (init_file_monitoring(&fm) == -1) {
-		// ! лоигрование !
 		logging(LOG_INFO,
 			"<start_file_monitoring> init_file_monitoring failed");
 		return NULL;
@@ -398,7 +383,6 @@ void *start_file_monitoring(void *args)
 
 	// выделили виртуальный адрес для всех файлов
 	if (map_all_files(cc->file_list) == -1) {
-		// ! логирование, каких-то файлов не существует !
 		logging(LOG_ERR,
 			"<start_file_monitoring> map_all_files failed");
 		return NULL;
@@ -455,7 +439,6 @@ void *start_file_monitoring(void *args)
 				pthread_mutex_lock(&(cc->mutex));
 				if ((check_type_fd(events[i].data.fd, &fm,
 						   cc->file_list)) == -1) {
-					// ! логирование !
 					logging(LOG_ERR,
 						"<start_file_monitoring> check_type_fd failed");
 					return NULL;

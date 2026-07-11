@@ -83,7 +83,6 @@ int file_in_attrib(int wd, struct list *file_list)
 {
 	struct file *changed_file = find_file_by_wd(file_list, wd);
 	if (changed_file == NULL) {
-		// ! логирование !
 		logging(LOG_ERR, "<file_in_attrib> find_file_by_wd failed");
 		return -1;
 	}
@@ -96,7 +95,6 @@ int file_in_attrib(int wd, struct list *file_list)
 	off_t new_size = get_file_size(changed_file->path);
 	if (new_size == -1) {
 		if (delete_file_by_wd(file_list, wd) == -1) {
-			// ! логирование !
 			logging(LOG_ERR,
 				"<file_in_attrib> delete_file_by_wd failed");
 			return -1;
@@ -121,14 +119,12 @@ int file_in_modify(int wd, struct list *file_list)
 {
 	struct file *changed_file = find_file_by_wd(file_list, wd);
 	if (changed_file == NULL) {
-		// ! логирование !
 		logging(LOG_ERR, "<file_in_modify> find_file_by_wd failed");
 		return -1;
 	}
 	// изымаем виртуальный адрес
 	if ((unmap_file(changed_file) == -1) &&
 	    (changed_file->politic == EVICT)) {
-		// ! логирование !
 		logging(LOG_ERR,
 			"<file_in_modify> KEEP or MONITOR file doesn`t have virtual address");
 		return -1;
@@ -136,14 +132,12 @@ int file_in_modify(int wd, struct list *file_list)
 	// пересчитываем размер файла
 	off_t new_size = get_file_size(changed_file->path);
 	if (new_size == -1) {
-		// ! логирование !
 		logging(LOG_ERR, "<file_in_modify> get_file_size failed");
 		return -1;
 	}
 	changed_file->stat->size = new_size;
 	// назначили новый адрес
 	if (map_file(changed_file) == -1) {
-		// ! логирование !
 		logging(LOG_ERR, "<file_in_modify> map_file failed");
 		return -1;
 	}
@@ -159,7 +153,6 @@ int read_inotify(int inotify_fd, struct list *file_list)
 	size_t buff_size = sizeof(struct inotify_event) + PATH_BUFF_SIZE + 1;
 	struct inotify_event *event = malloc(buff_size);
 	if (event == NULL) {
-		// ! логирование !
 		logging(LOG_ERR, "<read_inotify> malloc failed");
 		return -1;
 	}
@@ -181,7 +174,6 @@ int read_inotify(int inotify_fd, struct list *file_list)
 	} else if (event->mask & IN_MOVE_SELF) {
 		logging(LOG_INFO, "inotify caught IN_MOVE_SELF");
 		if (delete_file_by_wd(file_list, event->wd) == -1) {
-			// ! логирование !
 			logging(LOG_ERR,
 				"<read_inotify> delete_file_by_wd failed");
 			free(event);
