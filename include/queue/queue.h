@@ -15,10 +15,11 @@
 #define SIZE_SND 45
 #define MAX_SIZE_MSG 8192
 #define CHANGE_SIZE_MSG 8190
-#define MQ_TIMEOUT 10
+#define MQ_TIMEOUT 5
 
 mqd_t create_queue(char *file_desc, int flags, int size_msg);
 char *recive_msg(mqd_t queue, char *snd_msg, int size_msg);
 int send_msg(mqd_t queue, char *snd_msg, int size_msg);
+char *recive_msg_for_mediator(mqd_t queue_fd, char *rcv_msg, int size_msg);
 
 #endif

@@ -35,10 +35,6 @@ mqd_t create_queue(char *file_desc, int flags, int size_msg)
 	return msg_queue;
 }
 
-/*
-Функция приема команд из очереди от медиатора
-Сделал универсальной, если потребуется создавать дополнительные очереи
-*/
 char *recive_msg(mqd_t queue_fd, char *rcv_msg, int size_msg)
 {
 	if (size_msg > MAX_SIZE_MSG) {
@@ -47,18 +43,35 @@ char *recive_msg(mqd_t queue_fd, char *rcv_msg, int size_msg)
 		size_msg = CHANGE_SIZE_MSG;
 	}
 	struct timespec timeout;
-	timeout.tv_sec = MQ_TIMEOUT;
-	if (mq_timedreceive(queue_fd, rcv_msg, size_msg, 0, &timeout) < 0) {
+	clock_gettime(CLOCK_REALTIME, &timeout);
+	timeout.tv_sec += MQ_TIMEOUT;
+	timeout.tv_nsec = 0;
+	ssize_t ret = mq_timedreceive(queue_fd, rcv_msg, size_msg, 0, &timeout);
+	if (ret < 0) {
 		int err = errno;
-		if (err != ETIMEDOUT) {
+		if (err == ETIMEDOUT) {
 			return NULL;
 		}
-		logging(LOG_ERR, "Error recive message: ");
+		logging(LOG_ERR, "Error recive message: %s");
 		return NULL;
 	}
 	return rcv_msg;
 }
 
+char *recive_msg_for_mediator(mqd_t queue_fd, char *rcv_msg, int size_msg)
+{
+	if (size_msg > MAX_SIZE_MSG) {
+		logging(LOG_WARNING,
+			"Error size message for recive from queue very high. This parametr will be set 8190");
+		size_msg = CHANGE_SIZE_MSG;
+	}
+	ssize_t ret = mq_receive(queue_fd, rcv_msg, size_msg, 0);
+	if (ret < 0) {
+		logging(LOG_ERR, "Error recive message: %s");
+		return NULL;
+	}
+	return rcv_msg;
+}
 /*
 Функция отправки сообщения в очередь для медиатора
 Сделал универсальной, если потребуется создавать дополнительные очереи
