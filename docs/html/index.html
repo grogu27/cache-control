@@ -1,0 +1,376 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.9.8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Cache Control: CacheControl — система управления страничным кэшем</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">Cache Control<span id="projectnumber">&#160;1.0</span>
+   </div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Создано системой Doxygen 1.9.8 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Поиск');
+  $(document).ready(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Загрузка...</div>
+<div class="SRStatus" id="Searching">Поиск...</div>
+<div class="SRStatus" id="NoMatches">Не найдено</div>
+</div>
+</div>
+</div>
+</div>
+
+<div><div class="header">
+  <div class="headertitle"><div class="title">CacheControl — система управления страничным кэшем </div></div>
+</div><!--header-->
+<div class="contents">
+<div class="textblock"><p><a class="anchor" id="md_docs_2homepage"></a> <b>CacheControl</b> — это фоновый демон, который следит за заданными файлами или каталогами и управляет их присутствием в оперативной памяти (page cache). Демон может принудительно подгружать файлы в кэш для ускорения доступа (например, перед запуском тяжёлого приложения) или выгружать малоиспользуемые файлы, освобождая память.</p>
+<h1><a class="anchor" id="autotoc_md1"></a>
+Содержание</h1>
+<ul>
+<li>Возможности</li>
+<li>Конфигурация</li>
+<li>Уровни логирования</li>
+<li>Использование</li>
+<li>Команды медиатора</li>
+<li>Сигналы</li>
+<li>Структура проекта</li>
+<li>Сборка</li>
+<li>Документация</li>
+</ul>
+<h1><a class="anchor" id="autotoc_md2"></a>
+Возможности</h1>
+<ul>
+<li><b>Три политики кэширования:</b><ul>
+<li><code>keep</code> — постоянно держать файл(ы) в кэше</li>
+<li><code>evict</code> — выгружать, если файл не использовался заданное время</li>
+<li><code>monitor</code> — только собирать статистику, не вмешиваясь</li>
+</ul>
+</li>
+<li><b>Работа с масками</b> — поддержка шаблонов в путях к файлам (<code>/var/log/*.log</code>)</li>
+<li><b>Мониторинг страничного кэша</b> — использование системного вызова <code>mincore()</code> для анализа присутствия страниц в памяти</li>
+<li><b>Отслеживание изменений</b> — мониторинг файлов через <code>inotify</code> (события: изменение, удаление, перемещение)</li>
+<li><b>Управление через очередь сообщений</b> — POSIX очередь для отправки команд демону</li>
+<li><b>Обработка сигналов</b> — корректное завершение, перезагрузка конфигурации, отладочный вывод статистики</li>
+<li><b>Логирование</b> — все события и ошибки направляются в <code>syslog</code></li>
+</ul>
+<h2><a class="anchor" id="autotoc_md3"></a>
+Требования</h2>
+<ul>
+<li>Компилятор GCC/Clang с поддержкой <b>C11</b></li>
+<li>POSIX-совместимая ОС (<b>Linux</b>)</li>
+</ul>
+<h1><a class="anchor" id="autotoc_md4"></a>
+Конфигурация</h1>
+<h2><a class="anchor" id="autotoc_md5"></a>
+Формат конфигурационного файла</h2>
+<div class="fragment"><div class="line">&lt;путь_с_маской&gt; &lt;политика&gt; [параметры]</div>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md6"></a>
+Поддерживаемые политики</h2>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadLeft">Политика   </th><th class="markdownTableHeadLeft">Описание    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>keep</code>   </td><td class="markdownTableBodyLeft">Постоянно держать файл(ы) в кэше (периодически подгружать при необходимости)    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>evict</code>   </td><td class="markdownTableBodyLeft">Выгружать из кэша, если файл не использовался в течение заданного времени    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>monitor</code>   </td><td class="markdownTableBodyLeft">Только собирать статистику, не вмешиваясь   </td></tr>
+</table>
+<h2><a class="anchor" id="autotoc_md7"></a>
+Параметры</h2>
+<ul>
+<li><code>age=&lt;секунды&gt;</code> — время в секундах, после которого файл будет выгружен (для политики <code>evict</code>)</li>
+<li><code>interval=&lt;секунды&gt;</code> — интервал сканирования (по умолчанию 60 секунд)</li>
+</ul>
+<h2><a class="anchor" id="autotoc_md8"></a>
+Пример конфигурационного файла</h2>
+<p>Файл <code>/etc/cachecontrol.conf</code>:</p>
+<div class="fragment"><div class="line"># База данных MySQL — всегда в кэше</div>
+<div class="line">/var/lib/mysql/* keep</div>
+<div class="line"> </div>
+<div class="line"># Логи выгружаются через час</div>
+<div class="line">/var/log/*.log evict age=3600</div>
+<div class="line"> </div>
+<div class="line"># Временные файлы выгружаются через 5 минут</div>
+<div class="line">/tmp/* evict age=300</div>
+<div class="line"> </div>
+<div class="line"># Файлы данных — только мониторинг</div>
+<div class="line">/opt/data/*.dat monitor</div>
+<div class="line"> </div>
+<div class="line"># Интервал сканирования</div>
+<div class="line">interval=120</div>
+</div><!-- fragment --> <h1><a class="anchor" id="autotoc_md9"></a>
+Уровни логирования</h1>
+<p>Все сообщения демона записываются в <code>syslog</code>.</p>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadLeft">Уровень   </th><th class="markdownTableHeadLeft">Назначение    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>LOG_INFO</code>   </td><td class="markdownTableBodyLeft">Информационные сообщения    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>LOG_WARNING</code>   </td><td class="markdownTableBodyLeft">Предупреждения    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>LOG_ERR</code>   </td><td class="markdownTableBodyLeft">Критические ошибки   </td></tr>
+</table>
+<h1><a class="anchor" id="autotoc_md10"></a>
+Использование</h1>
+<h2><a class="anchor" id="autotoc_md11"></a>
+Запуск демона</h2>
+<div class="fragment"><div class="line"># Запуск с конфигом по умолчанию (/etc/cachecontrol.conf)</div>
+<div class="line">./bin/cache_control -d</div>
+<div class="line"> </div>
+<div class="line"># Запуск с указанием конфигурационного файла</div>
+<div class="line">./bin/cache_control -c /etc/cachecontrol.conf</div>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md12"></a>
+Запуск медиатора</h2>
+<div class="fragment"><div class="line"># Интерактивный режим управления демоном</div>
+<div class="line">./bin/cache_control_mediator</div>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md13"></a>
+Команды медиатора</h1>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadLeft">Команда   </th><th class="markdownTableHeadLeft">Аргумент   </th><th class="markdownTableHeadLeft">Описание    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>status</code>   </td><td class="markdownTableBodyLeft">all   </td><td class="markdownTableBodyLeft">Вывести статистику по файлу или по всем отслеживаемым    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>cache</code>   </td><td class="markdownTableBodyLeft"><code>&lt;file&gt;</code>   </td><td class="markdownTableBodyLeft">Принудительно подгрузить файл в кэш (игнорируя политику)    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>evict</code>   </td><td class="markdownTableBodyLeft"><code>&lt;file&gt;</code>   </td><td class="markdownTableBodyLeft">Принудительно выгрузить файл из кэша    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>reload</code>   </td><td class="markdownTableBodyLeft">—   </td><td class="markdownTableBodyLeft">Перечитать конфигурационный файл без остановки    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>exit</code>   </td><td class="markdownTableBodyLeft">—   </td><td class="markdownTableBodyLeft">Корректно завершить работу демона    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>clear</code>   </td><td class="markdownTableBodyLeft">—   </td><td class="markdownTableBodyLeft">Очистить терминал   </td></tr>
+</table>
+<h1><a class="anchor" id="autotoc_md14"></a>
+Сигналы</h1>
+<p>Демон поддерживает обработку следующих сигналов:</p>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadLeft">Сигнал   </th><th class="markdownTableHeadLeft">Действие    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft">SIGTERM / SIGINT   </td><td class="markdownTableBodyLeft">Корректное завершение работы (освобождение памяти, закрытие дескрипторов, удаление PID-файла)    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft">SIGHUP   </td><td class="markdownTableBodyLeft">Перезагрузка конфигурационного файла без остановки демона    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft">SIGUSR1   </td><td class="markdownTableBodyLeft">Вывод текущей статистики в syslog (для отладки)   </td></tr>
+</table>
+<p><b>Пример отправки сигналов:</b></p>
+<div class="fragment"><div class="line"># Перезагрузить конфигурацию</div>
+<div class="line">kill -SIGHUP &lt;PID&gt;</div>
+<div class="line"> </div>
+<div class="line"># Вывести статистику в syslog</div>
+<div class="line">kill -SIGUSR1 &lt;PID&gt;</div>
+<div class="line"> </div>
+<div class="line"># Завершить демон</div>
+<div class="line">kill &lt;PID&gt;</div>
+<div class="line">kill -SIGINT &lt;PID&gt;</div>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md15"></a>
+Структура проекта</h1>
+<div class="fragment"><div class="line">.</div>
+<div class="line">|-- bin/                          # Исполняемые файлы</div>
+<div class="line">|   |-- cache_control             # Демон</div>
+<div class="line">|   `-- cache_control_mediator    # Медиатор</div>
+<div class="line">|-- config/                       # Конфигурационные файлы</div>
+<div class="line">|   `-- cachecontrol.conf         # Пример конфига</div>
+<div class="line">|-- docs/                         # Документация (Doxygen)</div>
+<div class="line">|   |-- html/                     # Сгенерированная HTML-документация</div>
+<div class="line">|   `-- mainpage.md              # Главная страница документации</div>
+<div class="line">|-- include/                      # Заголовочные файлы (.h)</div>
+<div class="line">|   |-- cache_control/</div>
+<div class="line">|   |   |-- cache_control.h</div>
+<div class="line">|   |   |-- command_listener.h</div>
+<div class="line">|   |   |-- context.h</div>
+<div class="line">|   |   |-- daemonize.h</div>
+<div class="line">|   |   |-- events_stuff.h</div>
+<div class="line">|   |   |-- file_loading.h</div>
+<div class="line">|   |   |-- file_monitoring.h</div>
+<div class="line">|   |   |-- file_statistics.h</div>
+<div class="line">|   |   |-- inotify_stuff.h</div>
+<div class="line">|   |   |-- options.h</div>
+<div class="line">|   |   |-- parse_config.h</div>
+<div class="line">|   |   |-- signal_handler.h</div>
+<div class="line">|   |   `-- threads.h</div>
+<div class="line">|   |-- cache_control_mediator/</div>
+<div class="line">|   |   `-- cache_control_mediator.h</div>
+<div class="line">|   |-- list/</div>
+<div class="line">|   |   `-- list.h</div>
+<div class="line">|   |-- log/</div>
+<div class="line">|   |   `-- log.h</div>
+<div class="line">|   `-- queue/</div>
+<div class="line">|       `-- queue.h</div>
+<div class="line">|-- obj/                          # Объектные файлы (.o)</div>
+<div class="line">|   |-- cache_control/</div>
+<div class="line">|   |-- cache_control_mediator/</div>
+<div class="line">|   |-- list/</div>
+<div class="line">|   |-- log/</div>
+<div class="line">|   `-- queue/</div>
+<div class="line">|-- src/                          # Файлы с исходным кодом (.c)</div>
+<div class="line">|   |-- cache_control/</div>
+<div class="line">|   |   |-- command_listener.c</div>
+<div class="line">|   |   |-- context.c</div>
+<div class="line">|   |   |-- daemonize.c</div>
+<div class="line">|   |   |-- events_stuff.c</div>
+<div class="line">|   |   |-- file_loading.c</div>
+<div class="line">|   |   |-- file_monitoring.c</div>
+<div class="line">|   |   |-- file_statistics.c</div>
+<div class="line">|   |   |-- inotify_stuff.c</div>
+<div class="line">|   |   |-- main.c</div>
+<div class="line">|   |   |-- options.c</div>
+<div class="line">|   |   |-- parse_config.c</div>
+<div class="line">|   |   |-- signal_handler.c</div>
+<div class="line">|   |   `-- threads.c</div>
+<div class="line">|   |-- cache_control_mediator/</div>
+<div class="line">|   |   `-- main.c</div>
+<div class="line">|   |-- list/</div>
+<div class="line">|   |   `-- list.c</div>
+<div class="line">|   |-- log/</div>
+<div class="line">|   |   `-- log.c</div>
+<div class="line">|   `-- queue/</div>
+<div class="line">|       `-- queue.c</div>
+<div class="line">|-- Doxyfile</div>
+<div class="line">|-- Makefile</div>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md16"></a>
+Модули демона (src/cache_control/)</h2>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadLeft">Файл   </th><th class="markdownTableHeadLeft">Описание    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>main.c</code>   </td><td class="markdownTableBodyLeft">Точка входа демона    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>parse_config.c</code>   </td><td class="markdownTableBodyLeft">Парсер конфигурационного файла    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>context.c</code>   </td><td class="markdownTableBodyLeft">Управление глобальным состоянием демона    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>daemonize.c</code>   </td><td class="markdownTableBodyLeft">Запуск в фоновом режиме    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>signal_handler.c</code>   </td><td class="markdownTableBodyLeft">Обработка сигналов    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>file_monitoring.c</code>   </td><td class="markdownTableBodyLeft">Управление политиками кэширования    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>file_statistics.c</code>   </td><td class="markdownTableBodyLeft">Сбор статистики через <code>mincore()</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>file_loading.c</code>   </td><td class="markdownTableBodyLeft">Управление страничным кэшем файлов    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>inotify_stuff.c</code>   </td><td class="markdownTableBodyLeft">Мониторинг изменений файловой системы    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>command_listener.c</code>   </td><td class="markdownTableBodyLeft">Обработка команд медиатора    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>threads.c</code>   </td><td class="markdownTableBodyLeft">Управление потоками демона    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyLeft"><code>options.c</code>   </td><td class="markdownTableBodyLeft">Обработка аргументов командной строки    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>events_stuff.c</code>   </td><td class="markdownTableBodyLeft">Обработка событий файловой системы   </td></tr>
+</table>
+<h2><a class="anchor" id="autotoc_md17"></a>
+Модули медиатора (src/cache_control_mediator/)</h2>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadLeft">Файл   </th><th class="markdownTableHeadLeft">Описание    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyLeft"><code>main.c</code>   </td><td class="markdownTableBodyLeft">Интерфейс управления демоном и отправка команд через очередь сообщений   </td></tr>
+</table>
+<h1><a class="anchor" id="autotoc_md18"></a>
+Сборка</h1>
+<h2><a class="anchor" id="autotoc_md19"></a>
+Доступные цели Make</h2>
+<div class="fragment"><div class="line">make help          # Показать все доступные цели</div>
+<div class="line">make all           # Собрать все бинарные файлы</div>
+<div class="line">make clean         # Удалить объектные файлы</div>
+<div class="line">make clang_format  # Отформатировать исходный код с помощью clang-format</div>
+<div class="line">make docs          # Сгенерировать документацию</div>
+<div class="line">make docs_clean    # Удалить сгенерированную документацию</div>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md20"></a>
+Сборка проекта</h2>
+<div class="fragment"><div class="line"># Собрать демон и медиатор</div>
+<div class="line">make</div>
+<div class="line"> </div>
+<div class="line"># Собрать только демон</div>
+<div class="line">make cache_control</div>
+<div class="line"> </div>
+<div class="line"># Собрать только медиатор</div>
+<div class="line">make cache_control_mediator</div>
+<div class="line"> </div>
+<div class="line"># Удалить артефакты сборки</div>
+<div class="line">make clean</div>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md21"></a>
+Генерация документации</h2>
+<div class="fragment"><div class="line"># Сгенерировать HTML- и PDF-документацию</div>
+<div class="line">make docs</div>
+<div class="line"> </div>
+<div class="line"># Удалить сгенерированную документацию</div>
+<div class="line">make docs_clean</div>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md22"></a>
+Документация</h1>
+<p>После выполнения</p>
+<div class="fragment"><div class="line">make docs</div>
+</div><!-- fragment --><p>документация будет доступна:</p>
+<ul>
+<li>HTML: <code>docs/html/index.html</code></li>
+<li>PDF: <code>docs/latex/refman.pdf</code> (если установлен LaTeX)</li>
+</ul>
+<p>Проект документирован с использованием Doxygen. Документация включает:</p>
+<ul>
+<li>описание всех модулей проекта;</li>
+<li>описание структур данных;</li>
+<li>описание функций и их параметров;</li>
+<li>зависимости между модулями; </li>
+</ul>
+</div></div><!-- PageDoc -->
+</div><!-- contents -->
+<!-- start footer part -->
+<hr class="footer"/><address class="footer"><small>
+Создано системой&#160;<a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8
+</small></address>
+</body>
+</html>

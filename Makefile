@@ -110,7 +110,7 @@ docs:
 	@echo "Documentation generated in $(DOC_DIR)/html/index.html и в $(DOC_DIR)/latex/refman.pdf"
 
 docs_clean:
-	rm -rf docs/
+	rm -rf docs/html docs/latex docs/man
 	@echo "Documentation removed"
 
 clang_format:
