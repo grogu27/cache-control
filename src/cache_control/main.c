@@ -30,6 +30,8 @@ int main(int argc, char **argv)
 	logging(LOG_INFO, "<main> options parsed successfully");
 	printf("Options parsing is success\n");
 
+	printf("PID = %d\n", getpid());
+
 	if (cc.daemon_flag == 1) {
 		logging(LOG_INFO, "<main> daemon flag enabled");
 		if (daemonize() != 0) {
@@ -66,7 +68,7 @@ int main(int argc, char **argv)
 		//логирование, синтаксическая ошибка в конфиг файле
 		logging(LOG_ERR, "<main> syntax error in config file");
 		return EXIT_FAILURE;
-	} else if (res_parse_config == 3){
+	} else if (res_parse_config == 3) {
 		//логирование, семантическая ошибка в конфиг файле
 		logging(LOG_ERR, "<main> semantic error in config file");
 		return EXIT_FAILURE;
@@ -84,7 +86,7 @@ int main(int argc, char **argv)
 	logging(LOG_INFO, "<main> entering main loop");
 	char log_output[LOG_BUFF];
 	while (!cc.shutdown_flag) {
-		if (cc.stats_flag == 1){
+		if (cc.stats_flag == 1) {
 			cc.stats_flag = 0;
 			logging(LOG_INFO, "STATISTICS");
 			sprintf(log_output, "files: %d", cc.file_list->length);
@@ -92,11 +94,16 @@ int main(int argc, char **argv)
 
 			struct node *cur_node = cc.file_list->start;
 			int count = 0;
-			while(cur_node != NULL){
+			while (cur_node != NULL) {
 				count++;
-				sprintf(log_output, "%d) %s | %d | size=%ld | number_of_pages=%d | number_of_pages_cache=%d | percent_cache=%d",
-					count, cur_node->nd_file->path, cur_node->nd_file->politic, cur_node->nd_file->stat->size,
-				 	cur_node->nd_file->stat->number_of_pages, cur_node->nd_file->stat->number_of_pages_cache,
+				sprintf(log_output,
+					"%d) %s | %d | size=%ld | number_of_pages=%d | number_of_pages_cache=%d | percent_cache=%d",
+					count, cur_node->nd_file->path,
+					cur_node->nd_file->politic,
+					cur_node->nd_file->stat->size,
+					cur_node->nd_file->stat->number_of_pages,
+					cur_node->nd_file->stat
+						->number_of_pages_cache,
 					cur_node->nd_file->stat->percent_cache);
 				logging(LOG_INFO, log_output);
 				cur_node = cur_node->nd_next;

@@ -8,14 +8,17 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <mqueue.h>
+#include <time.h>
+#include <errno.h>
 
 #define SIZE_RCV 1024
 #define SIZE_SND 45
 #define MAX_SIZE_MSG 8192
 #define CHANGE_SIZE_MSG 8190
+#define MQ_TIMEOUT 10
 
 mqd_t create_queue(char *file_desc, int flags, int size_msg);
-char* recive_msg(mqd_t queue, char *snd_msg, int size_msg);
+char *recive_msg(mqd_t queue, char *snd_msg, int size_msg);
 int send_msg(mqd_t queue, char *snd_msg, int size_msg);
 
 #endif

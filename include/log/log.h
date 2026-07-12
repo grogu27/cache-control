@@ -5,7 +5,7 @@
 #include <syslog.h>
 #include <errno.h>
 
-#define LOG_BUFF 256
+#define LOG_BUFF 512
 
 void open_log();
 void logging(int log_level, char *msg);

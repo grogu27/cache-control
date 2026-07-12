@@ -3,6 +3,7 @@
 #ifndef CONTEXT_H
 #define CONTEXT_H
 
+#include <pthread.h>
 #include "../list/list.h"
 #include "parse_config.h"
 #include "../log/log.h"
@@ -17,6 +18,7 @@ struct cache_control {
 	int interval;
 	int reload_flag;
 	int stats_flag;
+	pthread_mutex_t mutex;
 };
 
 int init_context(struct cache_control *cc);

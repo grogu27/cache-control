@@ -26,8 +26,7 @@ mqd_t create_queue(char *file_desc, int flags, int size_msg)
 	queue->mq_msgsize = size_msg;
 	msg_queue = mq_open(file_desc, flags, 0660, queue);
 	if (msg_queue == (mqd_t)-1) {
-		logging(LOG_ERR,
-			"Error open queue file descriptor: ");
+		logging(LOG_ERR, "Error open queue file descriptor: ");
 		free(queue);
 		return -1;
 	}
@@ -47,7 +46,13 @@ char *recive_msg(mqd_t queue_fd, char *rcv_msg, int size_msg)
 			"Error size message for recive from queue very high. This parametr will be set 8190");
 		size_msg = CHANGE_SIZE_MSG;
 	}
-	if (mq_receive(queue_fd, rcv_msg, size_msg, 0) < 0) {
+	struct timespec timeout;
+	timeout.tv_sec = MQ_TIMEOUT;
+	if (mq_timedreceive(queue_fd, rcv_msg, size_msg, 0, &timeout) < 0) {
+		int err = errno;
+		if (err != ETIMEDOUT) {
+			return NULL;
+		}
 		logging(LOG_ERR, "Error recive message: ");
 		return NULL;
 	}

@@ -124,6 +124,9 @@ int do_file_loading(struct file *myfile)
 					"<do_file_loading> unmap failed");
 				return -1;
 			}
+			myfile->stat->number_of_pages = -1;
+			myfile->stat->number_of_pages_cache = -1;
+			myfile->stat->percent_cache = -1;
 			logging(LOG_INFO, "it`s time to unmap evict file");
 		} else if ((diff < myfile->age) &&
 			   (myfile->vmem_mapping == NULL)) {
@@ -283,15 +286,17 @@ int check_type_fd(int fd, struct file_monitoring *fm, struct list *file_list)
 }
 
 // Перезагрузка конфига: чтение нового файла, пересоздание epoll/inotify, замена списка файлов
-int reload_config(struct cache_control *cc, struct file_monitoring *fm){
+int reload_config(struct cache_control *cc, struct file_monitoring *fm)
+{
 	logging(LOG_INFO, "reloading configuration...");
 	struct list *new_list = init_list();
-	if (new_list == NULL){
+	if (new_list == NULL) {
 		logging(LOG_ERR, "Failed to allocate new list");
 		return -1;
 	}
 	int new_interval = cc->interval;
-	int res_parse_config = parse_config(cc->config_path, new_list, &new_interval);
+	int res_parse_config =
+		parse_config(cc->config_path, new_list, &new_interval);
 	if (res_parse_config == 1) {
 		//логирование, не открывается конфиг файл
 		logging(LOG_ERR, "<reload_config> failed to open config file");
@@ -302,64 +307,68 @@ int reload_config(struct cache_control *cc, struct file_monitoring *fm){
 		logging(LOG_ERR, "<reload_config> syntax error in config file");
 		free_list(new_list);
 		return -1;
-	} else if (res_parse_config == 3){
+	} else if (res_parse_config == 3) {
 		//логирование, семантическая ошибка в конфиг файле
-		logging(LOG_ERR, "<reload_config> semantic error in config file");
+		logging(LOG_ERR,
+			"<reload_config> semantic error in config file");
 		free_list(new_list);
 		return -1;
 	}
 	logging(LOG_INFO, "<reload_config> config parsed");
 
-	if (map_all_files(new_list) == -1){
+	if (map_all_files(new_list) == -1) {
 		logging(LOG_ERR, "<reload_config> map_all_files failed");
 		free_list(new_list);
 		return -1;
 	}
 	struct list *old_list = cc->file_list;
-	if (fm->inotify_fd != -1){
+	if (fm->inotify_fd != -1) {
 		close(fm->inotify_fd);
 		fm->inotify_fd = -1;
 		logging(LOG_INFO, "<reload_config> closed old inotify fd");
 	}
 
-	if (fm->epoll_fd != -1){
+	if (fm->epoll_fd != -1) {
 		close(fm->epoll_fd);
 		fm->epoll_fd = -1;
 		logging(LOG_INFO, "<reload_config> closed old epoll fd");
 	}
 
-	if (fm->main_timer_fd != -1){
+	if (fm->main_timer_fd != -1) {
 		close(fm->main_timer_fd);
 		fm->main_timer_fd = -1;
 		logging(LOG_INFO, "<reload_config> closed main_timer_fd");
 	}
 
-	if (init_file_monitoring(fm) == -1){
+	if (init_file_monitoring(fm) == -1) {
 		logging(LOG_ERR, "<reload_config> init_file_monitoring failed");
 		free_list(new_list);
 		return -1;
 	}
 	logging(LOG_INFO, "<reload_config> init_file_monitoring success");
 
-	if (add_fd_to_epoll(fm->epoll_fd, fm->main_timer_fd) == -1){
-		logging(LOG_ERR, "<reload_config> add_fd_to_epoll failed (main_timer_fd)");
+	if (add_fd_to_epoll(fm->epoll_fd, fm->main_timer_fd) == -1) {
+		logging(LOG_ERR,
+			"<reload_config> add_fd_to_epoll failed (main_timer_fd)");
 		free_list(new_list);
 		return -1;
 	}
-	if (add_all_files_to_inotify(fm->inotify_fd, new_list) == -1){
-		logging(LOG_ERR, "<reload_config> add_all_files_to_inotify failed");
+	if (add_all_files_to_inotify(fm->inotify_fd, new_list) == -1) {
+		logging(LOG_ERR,
+			"<reload_config> add_all_files_to_inotify failed");
 		free_list(new_list);
 		return -1;
 	}
-	if (add_fd_to_epoll(fm->epoll_fd, fm->inotify_fd) == -1){
-		logging(LOG_ERR, "<reload_config> add_fd_to_epoll failed (inotify_fd)");
+	if (add_fd_to_epoll(fm->epoll_fd, fm->inotify_fd) == -1) {
+		logging(LOG_ERR,
+			"<reload_config> add_fd_to_epoll failed (inotify_fd)");
 		free_list(new_list);
 		return -1;
 	}
 
 	cc->file_list = new_list;
 	cc->interval = new_interval;
-	if (old_list != NULL){
+	if (old_list != NULL) {
 		free_list(old_list);
 	}
 	set_timer(fm->main_timer_fd, cc->interval);
@@ -421,11 +430,13 @@ void *start_file_monitoring(void *args)
 
 	struct epoll_event events[MAX_NUM_OF_EVENTS];
 	while (!cc->shutdown_flag) {
-		if (cc->reload_flag == 1){
+		if (cc->reload_flag == 1) {
 			cc->reload_flag = 0;
-			logging(LOG_INFO, "<start_file_monitoring> SIGHUP received, reloading config");
-			if (reload_config(cc, &fm) == -1){
-				logging(LOG_WARNING, "<start_file_monitoring> reload_config failed");
+			logging(LOG_INFO,
+				"<start_file_monitoring> SIGHUP received, reloading config");
+			if (reload_config(cc, &fm) == -1) {
+				logging(LOG_WARNING,
+					"<start_file_monitoring> reload_config failed");
 				return NULL;
 			}
 		}
@@ -441,6 +452,7 @@ void *start_file_monitoring(void *args)
 
 		for (int i = 0; i < MAX_NUM_OF_EVENTS; i++) {
 			if (events[i].events & EPOLLIN) {
+				pthread_mutex_lock(&(cc->mutex));
 				if ((check_type_fd(events[i].data.fd, &fm,
 						   cc->file_list)) == -1) {
 					// ! логирование !
@@ -448,6 +460,7 @@ void *start_file_monitoring(void *args)
 						"<start_file_monitoring> check_type_fd failed");
 					return NULL;
 				}
+				pthread_mutex_unlock(&(cc->mutex));
 			}
 		}
 	}
