@@ -2,28 +2,23 @@
 
 static struct cache_control *ctx = NULL;
 
-//установка структуры для обработки сигналов
 void set_context(struct cache_control *cc)
 {
 	ctx = cc;
 }
 
-//обработчик для сигнала sigint
 void sigint_handler(int sig)
 {
 	(void)sig;
-	//логирование, пришел сигнал sigint
 	logging(LOG_INFO, "<sigint_handler> SIGINT signal was received");
 	if (ctx != NULL) {
 		ctx->shutdown_flag = 1;
 	}
 }
 
-//обработчик для сигнала sigterm
 void sigterm_handler(int sig)
 {
 	(void)sig;
-	//логирование, пришел сигнал sigterm
 	logging(LOG_INFO, "<sigterm_handler> SIGTERM signal was received");
 	if (ctx != NULL) {
 		ctx->shutdown_flag = 1;
@@ -46,7 +41,6 @@ void sigusr1_handler(int sig){
 	}
 }
 
-//регистрация обработчика для сигнала
 int register_handler(int signum, void (*handler)(int))
 {
 	struct sigaction sa = { 0 };
@@ -61,13 +55,11 @@ int register_handler(int signum, void (*handler)(int))
 	return 0;
 }
 
-//инициализация всех обработчиков сигналов
 void init_signal_handler()
 {
 	register_handler(SIGINT, sigint_handler);
 	register_handler(SIGTERM, sigterm_handler);
 	register_handler(SIGHUP, sighup_handler);
 	register_handler(SIGUSR1, sigusr1_handler);
-	//логирование, все сигналы зареганы
 	logging(LOG_INFO, "<init_signal_handler> all signal handlers initialized");
 }

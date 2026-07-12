@@ -7,42 +7,36 @@ static struct cache_control *ctx = NULL;
 void *file_monitoring_thread(void *arg)
 {
 	if (arg == NULL) {
-		//логирование, у потока для мониторинга входной параметр NULL
+		logging(LOG_ERR, "<file_monitoring_thread> arg is NULL");
 		return NULL;
 	}
 
 	struct cache_control *cc = (struct cache_control *)arg;
+	logging(LOG_INFO, "<file_monitoring_thread> thread started");
 	start_file_monitoring(
-		cc); //еще там нужно поменять условия цикла while, чтобы завершался при флаге shutdown
-	// логирование, поток для мониторинга стартанул
-
-	//логирование, поток для мониторинга завершился
+		cc);
+	logging(LOG_INFO, "<file_monitoring_thread> thread finished");
 	return NULL;
 }
 
 void *command_listener_thread(void *arg)
 {
 	if (arg == NULL) {
-		//логирование, у потока для обработчика fifo входной параметр NULL
+		logging(LOG_ERR, "<command_listener_thread> arg is NULL");
 		return NULL;
 	}
 
 	struct cache_control *cc = (struct cache_control *)arg;
-	// логирование, поток для обработчика fifo стартанул
-	/*while (!cc->shutdown_flag) {
-		//читать команды из fifo
-	}*/
-
+	logging(LOG_INFO, "<command_listener_thread> thread started");
 	command_listner(cc);
-
-	//логирование, поток для обработчика fifo завершился
+	logging(LOG_INFO, "<command_listener_thread> thread finished");
 	return NULL;
 }
 
 int start_threads(struct cache_control *cc)
 {
 	if (cc == NULL) {
-		//логирование, у start_threads входной параметр NULL
+		logging(LOG_ERR, "<start_threads> cc is NULL");
 		return -1;
 	}
 
@@ -50,17 +44,17 @@ int start_threads(struct cache_control *cc)
 
 	if (pthread_create(&monitoring_id, NULL, file_monitoring_thread, ctx) !=
 	    0) {
-		//логирование, не создался поток для мониторинга
+		logging(LOG_ERR, "<start_threads> pthread_create failed (file_monitoring_thread)");
 		return -1;
 	}
-	//логирование, поток для мониторинга создался
+	logging(LOG_INFO, "<start_threads> monitoring thread created");
 
 	if (pthread_create(&listener_id, NULL, command_listener_thread, ctx) !=
 	    0) {
-		//логирование, не создался поток для обработчика fifo
+		logging(LOG_ERR, "<start_threads> pthread_create failed (command_listener_thread)");
 		return -1;
 	}
-	//логирование, поток для обработчика fifo создался
+	logging(LOG_INFO, "<start_threads> command listener thread created");
 
 	return 0;
 }
@@ -68,17 +62,15 @@ int start_threads(struct cache_control *cc)
 int stop_threads()
 {
 	if (ctx == NULL) {
-		//логирование, у stop_threads ctx NULL
+		logging(LOG_ERR, "<stop_threads> ctx is NULL");
 		return -1;
 	}
 
-	ctx->shutdown_flag = 1;
-
 	pthread_join(monitoring_id, NULL);
-	//лоигрование, pthread_join для потока мониторинга прошел
+	logging(LOG_INFO, "<stop_threads> monitoring thread joined");
 
 	pthread_join(listener_id, NULL);
-	//лоигрование, pthread_join для потока обработчика fifo прошел
+	logging(LOG_INFO, "<stop_threads> command listener thread joined");
 
 	return 0;
 }
