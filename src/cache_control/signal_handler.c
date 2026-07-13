@@ -25,7 +25,8 @@ void sigterm_handler(int sig)
 	}
 }
 
-void sighup_handler(int sig){
+void sighup_handler(int sig)
+{
 	(void)sig;
 	logging(LOG_INFO, "<sighup_handler> SIGHUP signal was received");
 	if (ctx != NULL) {
@@ -33,7 +34,8 @@ void sighup_handler(int sig){
 	}
 }
 
-void sigusr1_handler(int sig){
+void sigusr1_handler(int sig)
+{
 	(void)sig;
 	logging(LOG_INFO, "<sigusr1_handler> SIGUSR1 signal was received");
 	if (ctx != NULL) {
@@ -61,5 +63,6 @@ void init_signal_handler()
 	register_handler(SIGTERM, sigterm_handler);
 	register_handler(SIGHUP, sighup_handler);
 	register_handler(SIGUSR1, sigusr1_handler);
-	logging(LOG_INFO, "<init_signal_handler> all signal handlers initialized");
+	logging(LOG_INFO,
+		"<init_signal_handler> all signal handlers initialized");
 }

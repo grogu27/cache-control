@@ -13,8 +13,7 @@ void *file_monitoring_thread(void *arg)
 
 	struct cache_control *cc = (struct cache_control *)arg;
 	logging(LOG_INFO, "<file_monitoring_thread> thread started");
-	start_file_monitoring(
-		cc);
+	start_file_monitoring(cc);
 	logging(LOG_INFO, "<file_monitoring_thread> thread finished");
 	return NULL;
 }
@@ -44,14 +43,16 @@ int start_threads(struct cache_control *cc)
 
 	if (pthread_create(&monitoring_id, NULL, file_monitoring_thread, ctx) !=
 	    0) {
-		logging(LOG_ERR, "<start_threads> pthread_create failed (file_monitoring_thread)");
+		logging(LOG_ERR,
+			"<start_threads> pthread_create failed (file_monitoring_thread)");
 		return -1;
 	}
 	logging(LOG_INFO, "<start_threads> monitoring thread created");
 
 	if (pthread_create(&listener_id, NULL, command_listener_thread, ctx) !=
 	    0) {
-		logging(LOG_ERR, "<start_threads> pthread_create failed (command_listener_thread)");
+		logging(LOG_ERR,
+			"<start_threads> pthread_create failed (command_listener_thread)");
 		return -1;
 	}
 	logging(LOG_INFO, "<start_threads> command listener thread created");

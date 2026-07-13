@@ -101,7 +101,7 @@ static int check_pattern(const char *path)
 }
 
 static int parse_dir(const char *dir, const char *pattern, struct list *list,
-		      int policy, int age)
+		     int policy, int age)
 {
 	DIR *fd = opendir(dir);
 	if (!fd)
@@ -119,11 +119,12 @@ static int parse_dir(const char *dir, const char *pattern, struct list *list,
 
 		snprintf(path, PATH_MAX, "%s/%s", dir, entry->d_name);
 
-		if (find_file_by_path(list, path) != NULL){ // семантическая ошибка в конфигурационном файле (к одному и тому же файлу применяются разные политики).
+		if (find_file_by_path(list, path) !=
+		    NULL) { // семантическая ошибка в конфигурационном файле (к одному и тому же файлу применяются разные политики).
 			closedir(fd);
 			return 2;
-		}  
-			
+		}
+
 		struct file *f = init_file(path, policy, age);
 
 		add_file(list, f);
@@ -224,7 +225,7 @@ int parse_config(const char *config_path, struct list *l, int *interval)
 		}
 
 		int res_parse_dir = parse_dir(dir, pattern, l, policy, age);
-		if(res_parse_dir == 2)
+		if (res_parse_dir == 2)
 			return 3;
 	}
 
