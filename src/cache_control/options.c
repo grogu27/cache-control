@@ -65,6 +65,7 @@ int parse_options(int argc, char **argv, struct cache_control *cc)
 				printf("Config path is empty\n");
 				return -1;
 			}
+			strcpy(cc->config_path, optarg);
 			if (realpath(cc->config_path, path_buf) == NULL) {
 				logging(LOG_ERR,
 					"<parse_options> realpath failed");

@@ -5,8 +5,8 @@
  */
 
 /*! \addtogroup parse_config
- *  \brief Модуль парсинга конфигурационного файла кэширования
- *  \details Предоставляет функции для разбора конфигурационного файла,
+ *  Модуль парсинга конфигурационного файла кэширования
+ *  Предоставляет функции для разбора конфигурационного файла,
  *  содержащего правила управления кэшем для файлов и каталогов.
  *  Поддерживает три политики: keep, evict, monitor.
  *  @{
@@ -37,11 +37,11 @@
  * 
  * Примеры:
  * \verbatim
-   /var/lib/mysql/* keep
-   /var/log/*.log evict age=3600
-   /tmp/* evict age=300
-   /opt/data/*.dat monitor
-   \endverbatim
+ * /var/lib/mysql/file keep
+ * /var/log/file.log evict age=3600
+ * /tmp/file evict age=300
+ * /opt/data/file.dat monitor
+ * \endverbatim
  * 
  * \param[in] config_path Путь к конфигурационному файлу
  * \param[out] l Список, в который добавляются структуры file

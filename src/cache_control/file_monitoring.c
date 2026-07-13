@@ -52,7 +52,7 @@ int do_file_statistics(struct file *myfile)
 		if (myfile->politic != EVICT) {
 			logging(LOG_ERR,
 				"<do_file_statistics> myfile->vmem_mapping is NULL and myfile`s politics isn`t EVICT");
-			return -1;
+			return 1;
 		}
 		logging(LOG_WARNING,
 			"<do_file_statistics> file with EVICT politics has been already unmapped");

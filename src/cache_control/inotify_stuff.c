@@ -90,7 +90,7 @@ int file_in_attrib(int wd, struct list *file_list)
 	    (changed_file->politic != EVICT)) {
 		logging(LOG_ERR,
 			"<file_in_attrib> KEEP or MONITOR file doesn`t have virtual address");
-		return -1;
+		return 1;
 	}
 	off_t new_size = get_file_size(changed_file->path);
 	if (new_size == -1) {
@@ -127,7 +127,7 @@ int file_in_modify(int wd, struct list *file_list)
 	    (changed_file->politic == EVICT)) {
 		logging(LOG_ERR,
 			"<file_in_modify> KEEP or MONITOR file doesn`t have virtual address");
-		return -1;
+		return 1;
 	}
 	// пересчитываем размер файла
 	off_t new_size = get_file_size(changed_file->path);
